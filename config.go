@@ -7,7 +7,7 @@ import (
 )
 
 var config struct {
-	Token  string `yaml:"BOT_TOKEN"`
+	Token   string `yaml:"BOT_TOKEN"`
 	Chat_ID int64  `yaml:"CHAT_ID"`
 
 	Mastodon_Host_Url   string `yaml:"MASTODON_HOST_URL"`

@@ -87,6 +87,10 @@ func cuit(ctx context.Context, b *bot.Bot, update *models.Update) {
 	fullname := fmt.Sprintf("%s%s (t.me/%s)", user.FirstName, lastname, username)
 	text := fmt.Sprintf("\"%s\"\n\n- %s", cuit, fullname)
 
+	go sebarkan(ctx, b, update, text)
+}
+
+func sebarkan(ctx context.Context, b *bot.Bot, update *models.Update, text string) {
 	resp, err := keluarkan(text)
 	if err != nil {
 		log.Println(err)
