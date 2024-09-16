@@ -84,7 +84,7 @@ func cuit(ctx context.Context, b *bot.Bot, update *models.Update) {
 		username = "<no-username>"
 	}
 
-	fullname := fmt.Sprintf("%s%s (@%s)", user.FirstName, lastname, username)
+	fullname := fmt.Sprintf("%s%s (t.me/%s)", user.FirstName, lastname, username)
 	text := fmt.Sprintf("\"%s\"\n\n- %s", cuit, fullname)
 
 	resp, err := keluarkan(text)
