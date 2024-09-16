@@ -6,6 +6,7 @@ import (
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
 	"log"
+	"slices"
 	"strings"
 )
 
@@ -51,6 +52,14 @@ func cuit(ctx context.Context, b *bot.Bot, update *models.Update) {
 			b.SendMessage(ctx, &bot.SendMessageParams{
 				ChatID: msg.Chat.ID,
 				Text:   "Mas, Kok saya?",
+			})
+			return
+		}
+
+		if update.Message.From.ID != msg.From.ID && slices.Contains(config.Protected_Users, msg.From.ID) {
+			b.SendMessage(ctx, &bot.SendMessageParams{
+				ChatID: msg.Chat.ID,
+				Text:   "Pengguna tersebut terlindungi",
 			})
 			return
 		}
