@@ -13,6 +13,8 @@ import (
 var bot_username string
 var bot_id int64
 
+var helptext string
+
 func init_telegram() {
 	ctx := context.Background()
 	opts := []bot.Option{}
@@ -30,6 +32,15 @@ func init_telegram() {
 	bot_username = me.Username
 	bot_id = me.ID
 
+	helptext = fmt.Sprintf(
+		"Mas, Lu olang jangan lebay sangat.\n"+
+			"*Syntax:*\n/cuit `<pesan lu disini>`\n\n"+
+			"*Contoh:*\n/cuit gensokyo pisang keju\n\n"+
+			"Atau, Lu reply message orang,\n"+
+			"Lalu kirim /cuit@%s",
+		bot.EscapeMarkdown(bot_username),
+	)
+
 	b.RegisterHandler(bot.HandlerTypeMessageText, "/cuit", bot.MatchTypePrefix, cuit)
 
 	log.Printf("Telegram siap! (%s)", me.Username)
@@ -37,11 +48,41 @@ func init_telegram() {
 	b.Start(ctx)
 }
 
+func sendMessage(ctx context.Context, b *bot.Bot, chatID int64, text string) (*models.Message, error) {
+	params := &bot.SendMessageParams{
+		ChatID: chatID,
+		Text:   text,
+	}
+
+	return b.SendMessage(ctx, params)
+}
+
+func sendMessage_MarkDown(ctx context.Context, b *bot.Bot, chatID int64, text string) (*models.Message, error) {
+	params := &bot.SendMessageParams{
+		ChatID:    chatID,
+		Text:      text,
+		ParseMode: models.ParseModeMarkdownV1,
+	}
+
+	return b.SendMessage(ctx, params)
+}
+
+func sendTyping(ctx context.Context, b *bot.Bot, chatID int64) {
+	params := &bot.SendChatActionParams{
+		ChatID: chatID,
+		Action: models.ChatActionTyping,
+	}
+
+	b.SendChatAction(ctx, params)
+}
+
 func cuit(ctx context.Context, b *bot.Bot, update *models.Update) {
 	msg := update.Message
 	if msg.From.ID == bot_id || msg.Chat.ID != config.Chat_ID {
 		return
 	}
+
+	sendTyping(ctx, b, msg.Chat.ID)
 
 	_, cuit, adacuitan := strings.Cut(msg.Text, " ")
 
@@ -51,39 +92,23 @@ func cuit(ctx context.Context, b *bot.Bot, update *models.Update) {
 		adacuitan = len(msg.Text) > 0
 
 		if msg.From.ID == bot_id {
-			b.SendMessage(ctx, &bot.SendMessageParams{
-				ChatID: msg.Chat.ID,
-				Text:   "Mas, Kok saya?",
-			})
+			sendMessage(ctx, b, msg.Chat.ID, "Mas, Kok saya?")
 			return
 		}
 
 		if update.Message.From.ID != msg.From.ID && slices.Contains(config.Protected_Users, msg.From.ID) {
-			b.SendMessage(ctx, &bot.SendMessageParams{
-				ChatID: msg.Chat.ID,
-				Text:   "Pengguna tersebut terlindungi",
-			})
+			sendMessage(ctx, b, msg.Chat.ID, "Pengguna tersebut terlindungi")
 			return
 		}
 
 		if !adacuitan {
-			b.SendMessage(ctx, &bot.SendMessageParams{
-				ChatID: msg.Chat.ID,
-				Text:   "Jenis pesan tidak didukung",
-			})
+			sendMessage(ctx, b, msg.Chat.ID, "Jenis pesan tidak didukung")
 			return
 		}
 	}
 
 	if !adacuitan {
-		b.SendMessage(ctx, &bot.SendMessageParams{
-			ChatID: msg.Chat.ID,
-			Text: fmt.Sprintf(
-				"Mas, Lu olang jangan lebay sangat.\n*Syntax:*\n/cuit `<pesan lu disini>`\n\n*Contoh:*\n/cuit gensokyo pisang keju\n\nAtau, Lu reply message orang, Lalu kirim /cuit@%s",
-				bot.EscapeMarkdown(bot_username),
-			),
-			ParseMode: models.ParseModeMarkdownV1,
-		})
+		sendMessage_MarkDown(ctx, b, msg.Chat.ID, helptext)
 		return
 	}
 
@@ -105,28 +130,27 @@ func cuit(ctx context.Context, b *bot.Bot, update *models.Update) {
 }
 
 func sebarkan(ctx context.Context, b *bot.Bot, update *models.Update, text string) {
+	msg := update.Message
 	resp, err := keluarkan(text)
 	if err != nil {
 		log.Println(err)
-		b.SendMessage(ctx, &bot.SendMessageParams{
-			ChatID: update.Message.Chat.ID,
-			Text:   "Yah. Ada error.",
-		})
+		sendMessage(ctx, b, msg.Chat.ID, "Yah. Ada error.")
 		return
 	}
 
 	url, err := getPostURL(resp)
 	if err != nil {
 		log.Println(err)
-		b.SendMessage(ctx, &bot.SendMessageParams{
-			ChatID: update.Message.Chat.ID,
-			Text:   "Yah. Ada error.",
-		})
+		sendMessage(ctx, b, msg.Chat.ID,
+			"Yah. Server mastodon menolak.\n\n"+
+				"Kemungkinan:\n"+
+				"1. Pesan terlalu panjang\n"+
+				"2. Kesalahan internal di server mastodon",
+		)
 		return
 	}
 
-	b.SendMessage(ctx, &bot.SendMessageParams{
-		ChatID: update.Message.Chat.ID,
-		Text:   fmt.Sprintf("%s\n\n%s", text, url),
-	})
+	sendMessage(ctx, b, msg.Chat.ID,
+		fmt.Sprintf("%s\n\n%s", text, url),
+	)
 }
