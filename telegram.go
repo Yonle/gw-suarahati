@@ -10,6 +10,7 @@ import (
 	"strings"
 )
 
+var bot_username string
 var bot_id int64
 
 func init_telegram() {
@@ -26,6 +27,7 @@ func init_telegram() {
 		panic(err)
 	}
 
+	bot_username = me.Username
 	bot_id = me.ID
 
 	b.RegisterHandler(bot.HandlerTypeMessageText, "/cuit", bot.MatchTypePrefix, cuit)
@@ -76,7 +78,7 @@ func cuit(ctx context.Context, b *bot.Bot, update *models.Update) {
 	if !adacuitan {
 		b.SendMessage(ctx, &bot.SendMessageParams{
 			ChatID:    msg.Chat.ID,
-			Text:      "Mas, Lu olang jangan lebay sangat.\n*Syntax:*\n/cuit `<pesan lu disini>`\n\n*Contoh:*\n/cuit gensokyo pisang keju\n\nAtau, Lu reply message orang, Lalu kirim /cuit",
+			Text:      fmt.Sprintf("Mas, Lu olang jangan lebay sangat.\n*Syntax:*\n/cuit `<pesan lu disini>`\n\n*Contoh:*\n/cuit gensokyo pisang keju\n\nAtau, Lu reply message orang, Lalu kirim /cuit@%s", bot_username),
 			ParseMode: models.ParseModeMarkdownV1,
 		})
 		return
