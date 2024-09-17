@@ -4,7 +4,6 @@ CHAT_ID:
 
 MASTODON_HOST_URL: https://social.gnuweeb.org
 MASTODON_ACCESS_KEY:
-MASTODON_USER_URL: https://social.gnuweeb.org/@suarahati
 
 # Per User ID
 # Anyone couldn't /cuit messages from the following users

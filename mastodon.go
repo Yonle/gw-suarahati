@@ -1,17 +1,25 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"log"
+	"mime/multipart"
 	"net/http"
-	"net/url"
-	"strings"
 )
 
 type Status struct {
-	ID string `json:"id"`
+	ID  string `json:"id"`
+	URL string `json:"url"`
+}
+
+type Note struct {
+	Status    string   `json:"status"`
+	Medias    []string `json:"media_ids"`
+	Sensitive bool     `json:"sensitive"`
 }
 
 var auth string
@@ -22,16 +30,40 @@ func init_mastodon() {
 	log.Println("Mastodon siap!")
 }
 
-func keluarkan(text string) (*http.Response, error) {
-	p := url.Values{}
-	p.Set("status", text)
+func keluarkan(text string, mediaID *string, spoiler *bool) (*http.Response, error) {
+	n := Note{
+		Status: text,
+	}
 
-	req, err := http.NewRequest("POST", config.Mastodon_Host_Url+"/api/v1/statuses", strings.NewReader(p.Encode()))
+	if mediaID != nil {
+		n.Medias = append(n.Medias, *mediaID)
+	}
+
+	if spoiler != nil {
+		n.Sensitive = *spoiler
+	}
+
+	j := bytes.Buffer{}
+	json.NewEncoder(&j).Encode(n)
+
+	req, err := http.NewRequest("POST", config.Mastodon_Host_Url+"/api/v1/statuses", &j)
 	if err != nil {
 		return nil, err
 	}
 	req.Header.Set("Authorization", auth)
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("Content-Type", "application/json")
+
+	return hc.Do(req)
+}
+
+func masto_postMultipart(mp *multipart.Writer, body io.Reader) (*http.Response, error) {
+	req, err := http.NewRequest("POST", config.Mastodon_Host_Url+"/api/v2/media", body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("Authorization", auth)
+	req.Header.Set("Content-Type", mp.FormDataContentType())
 
 	return hc.Do(req)
 }
@@ -44,11 +76,11 @@ func getPostURL(resp *http.Response) (string, error) {
 		return "", err
 	}
 
-	if len(status.ID) < 1 {
+	if len(status.URL) < 1 {
 		return "", errors.New(
 			fmt.Sprintf("Status code: %d", resp.StatusCode),
 		)
 	}
 
-	return config.Mastodon_User_Url + "/" + status.ID, nil
+	return status.URL, nil
 }

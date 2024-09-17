@@ -12,7 +12,6 @@ var config struct {
 
 	Mastodon_Host_Url   string `yaml:"MASTODON_HOST_URL"`
 	Mastodon_Access_Key string `yaml:"MASTODON_ACCESS_KEY"`
-	Mastodon_User_Url   string `yaml:"MASTODON_USER_URL"`
 
 	Protected_Users []int64 `yaml:"PROTECTED_USERS"`
 }
