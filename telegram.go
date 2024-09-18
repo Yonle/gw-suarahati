@@ -168,7 +168,7 @@ func getFullName(user *models.User) string {
 
 func tooLong(ctx context.Context, b *bot.Bot, update *models.Update, text string) bool {
 	if isTextTooLong(text) {
-		sendMessage(ctx, b, update.Message.Chat.ID, "Surat hatimu kepanjangan bagi server mastodon mas.")
+		sendMessage(ctx, b, update.Message.Chat.ID, "Suara hatimu kepanjangan bagi server mastodon mas.")
 		return true
 	}
 
