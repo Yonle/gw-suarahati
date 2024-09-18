@@ -16,9 +16,6 @@ var bot_username string
 var bot_id int64
 
 var helptext string
-var mastodonErrorText string = "Yah. Server mastodon menolak.\n\n" +
-	"Kemungkinan:\n" + "1. Pesan terlalu panjang\n" +
-	"2. Kesalahan internal di server mastodon"
 
 var fileUpload_chan = make(chan struct{}, 1)
 
@@ -169,6 +166,15 @@ func getFullName(user *models.User) string {
 	return fmt.Sprintf("%s%s (t.me/%s)", user.FirstName, lastname, username)
 }
 
+func tooLong(ctx context.Context, b *bot.Bot, update *models.Update, text string) bool {
+	if isTextTooLong(text) {
+		sendMessage(ctx, b, update.Message.Chat.ID, "Surat hatimu kepanjangan bagi server mastodon mas.")
+		return true
+	}
+
+	return false
+}
+
 func cuit(ctx context.Context, b *bot.Bot, update *models.Update) {
 	msg := update.Message
 	if msg.From.ID == bot_id || msg.Chat.ID != config.Chat_ID {
@@ -205,6 +211,11 @@ func cuit(ctx context.Context, b *bot.Bot, update *models.Update) {
 			if len(msg.Caption) > 0 {
 				text = fmt.Sprintf("\"%s\"\n\n", msg.Caption) + text
 			}
+
+			if tooLong(ctx, b, update, text) {
+				return
+			}
+
 			go sebarkan_attachment(ctx, b, update, text, attachment, isSpoiler)
 			return
 		}
@@ -217,6 +228,10 @@ func cuit(ctx context.Context, b *bot.Bot, update *models.Update) {
 
 	fullname := getFullName(msg.From)
 	text := fmt.Sprintf("\"%s\"\n\n- %s", cuit, fullname)
+
+	if tooLong(ctx, b, update, text) {
+		return
+	}
 
 	go sebarkan_text(ctx, b, update, text)
 }
@@ -236,7 +251,7 @@ func sendResult(ctx context.Context, b *bot.Bot, update *models.Update, resp *ht
 	url, err := getPostURL(resp)
 	if err != nil {
 		log.Println(err)
-		sendMessage(ctx, b, update.Message.Chat.ID, mastodonErrorText)
+		sendMessage(ctx, b, update.Message.Chat.ID, "Yah. Ada error.")
 		return
 	}
 

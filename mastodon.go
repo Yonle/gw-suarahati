@@ -9,6 +9,7 @@ import (
 	"log"
 	"mime/multipart"
 	"net/http"
+	"time"
 )
 
 type Status struct {
@@ -22,12 +23,51 @@ type Note struct {
 	Sensitive bool     `json:"sensitive"`
 }
 
+type InstanceInfo struct {
+	Title         string                `json:"title"`
+	Configuration InstanceConfiguration `json:"configuration"`
+}
+
+type InstanceConfiguration struct {
+	Statuses InstanceStatusesConfiguration `json:"statuses"`
+}
+
+type InstanceStatusesConfiguration struct {
+	Max_Characters int64 `json:"max_characters"`
+}
+
 var auth string
 var hc http.Client
+var instance InstanceInfo
 
 func init_mastodon() {
 	auth = fmt.Sprintf("Bearer %s", config.Mastodon_Access_Key)
+	if err := getInstance(); err != nil {
+		panic(err)
+	}
+
+	go func() {
+		for {
+			time.Sleep(time.Minute)
+			getInstance()
+		}
+	}()
+
 	log.Println("Mastodon siap!")
+}
+
+func getInstance() error {
+	resp, err := http.Get(config.Mastodon_Host_Url + "/api/v2/instance")
+	if err != nil {
+		return err
+	}
+
+	defer resp.Body.Close()
+	return json.NewDecoder(resp.Body).Decode(&instance)
+}
+
+func isTextTooLong(text string) bool {
+	return int64(len(text)) > instance.Configuration.Statuses.Max_Characters
 }
 
 func keluarkan(text string, mediaID *string, spoiler *bool) (*http.Response, error) {
