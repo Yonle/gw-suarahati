@@ -315,16 +315,17 @@ func sebarkan_attachment(ctx context.Context, b *bot.Bot, update *models.Update,
 	}
 
 	defer masto_resp.Body.Close()
-	if masto_resp.StatusCode > 400 {
-		log.Println("Upload to Mastodon error with status code:", masto_resp.StatusCode)
-		sendMessage(ctx, b, update.Message.Chat.ID, fmt.Sprintf("Ku sudah berusaha upload ke mastodon, Namun MastoAPI bilang, Status code %d", masto_resp.StatusCode))
-		return
-	}
 
 	var status Status
 	if err := json.NewDecoder(masto_resp.Body).Decode(&status); err != nil {
 		log.Println(err)
 		sendMessage(ctx, b, update.Message.Chat.ID, "MastoAPI yang saya tuju sedang mabuk :/\n\nKu harap MastoAPInya respon dengan JSON, Lah yang datang di luar ekspetasi gue.")
+		return
+	}
+
+	if len(status.Error) > 0 {
+		log.Println("Upload to Mastodon error:", status.Error)
+		sendMessage(ctx, b, update.Message.Chat.ID, fmt.Sprintf("Ku sudah berusaha upload ke mastodon, Namun MastoAPI bilang:\n\n%s", status.Error))
 		return
 	}
 
