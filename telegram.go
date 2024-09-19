@@ -307,6 +307,8 @@ func sebarkan_attachment(ctx context.Context, b *bot.Bot, update *models.Update,
 	}
 
 	sendUploading(ctx, b, update.Message.Chat.ID)
+
+	// upload and get media ID
 	masto_resp, masto_err := masto_postMultipart(mp, body)
 	if masto_err != nil {
 		log.Println(masto_err)
@@ -331,6 +333,7 @@ func sebarkan_attachment(ctx context.Context, b *bot.Bot, update *models.Update,
 
 	sendTyping(ctx, b, update.Message.Chat.ID)
 
+	// media still processing. wait till ready
 	if masto_resp.StatusCode == 202 {
 		err := masto_wait_media_ready(status.ID)
 
@@ -342,6 +345,7 @@ func sebarkan_attachment(ctx context.Context, b *bot.Bot, update *models.Update,
 		}
 	}
 
+	// post
 	toot_resp, toot_err := keluarkan(text, &status.ID, &spoiler)
 	if toot_err != nil {
 		log.Println(err)
