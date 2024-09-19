@@ -241,7 +241,9 @@ func sebarkan_text(ctx context.Context, b *bot.Bot, update *models.Update, text 
 	resp, err := keluarkan(text, nil, nil)
 	if err != nil {
 		log.Println(err)
-		sendMessage(ctx, b, update.Message.Chat.ID, "Yah. Ada error.")
+		sendMessage(ctx, b, update.Message.Chat.ID,
+			fmt.Sprintf("Yah. Ada error.\n\n%s", err),
+		)
 		return
 	}
 
@@ -252,7 +254,9 @@ func sendResult(ctx context.Context, b *bot.Bot, update *models.Update, resp *ht
 	url, err := getPostURL(resp)
 	if err != nil {
 		log.Println(err)
-		sendMessage(ctx, b, update.Message.Chat.ID, "Yah. Ada error.")
+		sendMessage(ctx, b, update.Message.Chat.ID,
+			fmt.Sprintf("Yah. Ada error dari mastodon.\n\n%s", err),
+		)
 		return
 	}
 
@@ -329,7 +333,9 @@ func sebarkan_attachment(ctx context.Context, b *bot.Bot, update *models.Update,
 	toot_resp, toot_err := keluarkan(text, &status.ID, &spoiler)
 	if toot_err != nil {
 		log.Println(err)
-		sendMessage(ctx, b, update.Message.Chat.ID, "Yah. Ada error.")
+		sendMessage(ctx, b, update.Message.Chat.ID,
+			fmt.Sprintf("Yah. Ada error.\n\n%s", err),
+		)
 		return
 	}
 

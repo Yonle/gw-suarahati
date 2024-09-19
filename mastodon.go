@@ -13,8 +13,9 @@ import (
 )
 
 type Status struct {
-	ID  string `json:"id"`
-	URL string `json:"url"`
+	ID    string `json:"id"`
+	URL   string `json:"url"`
+	Error string `json:"error"`
 }
 
 type Note struct {
@@ -116,10 +117,8 @@ func getPostURL(resp *http.Response) (string, error) {
 		return "", err
 	}
 
-	if len(status.URL) < 1 {
-		return "", errors.New(
-			fmt.Sprintf("Status code: %d", resp.StatusCode),
-		)
+	if len(status.Error) > 0 {
+		return "", errors.New(status.Error)
 	}
 
 	return status.URL, nil
