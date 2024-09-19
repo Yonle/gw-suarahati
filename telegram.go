@@ -317,7 +317,7 @@ func sebarkan_attachment(ctx context.Context, b *bot.Bot, update *models.Update,
 	defer masto_resp.Body.Close()
 	if masto_resp.StatusCode > 400 {
 		log.Println("Upload to Mastodon error with status code:", masto_resp.StatusCode)
-		sendMessage(ctx, b, update.Message.Chat.ID, fmt.Sprintf("Ku sudah berusaha, Namun MastoAPI bilang, Status code %d", masto_resp.StatusCode))
+		sendMessage(ctx, b, update.Message.Chat.ID, fmt.Sprintf("Ku sudah berusaha upload ke mastodon, Namun MastoAPI bilang, Status code %d", masto_resp.StatusCode))
 		return
 	}
 
