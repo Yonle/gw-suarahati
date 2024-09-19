@@ -15,11 +15,11 @@ func writeMultipartBody(filename string, f io.Reader, mp *multipart.Writer, w *i
 	io.Copy(fileWriter, f)
 }
 
-func createForm(filename string, f io.Reader) (*multipart.Writer, *io.PipeReader, error) {
+func createForm(filename string, f io.Reader) (*multipart.Writer, *io.PipeReader) {
 	r, w := io.Pipe()
 	mp := multipart.NewWriter(w)
 
 	go writeMultipartBody(filename, f, mp, w)
 
-	return mp, r, nil
+	return mp, r
 }

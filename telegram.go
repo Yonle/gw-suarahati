@@ -299,12 +299,7 @@ func sebarkan_attachment(ctx context.Context, b *bot.Bot, update *models.Update,
 
 	// create form
 	defer resp.Body.Close()
-	mp, formBody, err := createForm(u[len(u)-1], resp.Body)
-	if err != nil {
-		log.Println(err)
-		sendMessage(ctx, b, update.Message.Chat.ID, "Dalemku rusak mas 🥲\nGagal membuat form multipart.")
-		return
-	}
+	mp, formBody := createForm(u[len(u)-1], resp.Body)
 
 	defer formBody.Close()
 
