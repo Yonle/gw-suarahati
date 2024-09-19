@@ -299,17 +299,19 @@ func sebarkan_attachment(ctx context.Context, b *bot.Bot, update *models.Update,
 
 	// create form
 	defer resp.Body.Close()
-	mp, body, err := createForm(u[len(u)-1], resp.Body)
+	mp, formBody, err := createForm(u[len(u)-1], resp.Body)
 	if err != nil {
 		log.Println(err)
 		sendMessage(ctx, b, update.Message.Chat.ID, "Dalemku rusak mas 🥲\nGagal membuat form multipart.")
 		return
 	}
 
+	defer formBody.Close()
+
 	sendUploading(ctx, b, update.Message.Chat.ID)
 
 	// upload and get media ID
-	masto_resp, masto_err := masto_postMultipart(mp, body)
+	masto_resp, masto_err := masto_postMultipart(mp, formBody)
 	if masto_err != nil {
 		log.Println(masto_err)
 		sendMessage(ctx, b, update.Message.Chat.ID, "Yah. Ada error saat upload file ke mastodon.")
