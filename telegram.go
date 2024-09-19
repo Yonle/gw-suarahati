@@ -99,8 +99,9 @@ func getAttachment(msg *models.Message) (hasAttachment bool, isSpoiler bool, id 
 		var lastSize int
 
 		for _, p := range msg.Photo[1:] {
+			// if this one is too big, skip.
 			if int64(p.FileSize) > Max_Attachment_Size {
-				return false, false, fileID
+				continue
 			}
 
 			// pick the biggest
@@ -114,37 +115,37 @@ func getAttachment(msg *models.Message) (hasAttachment bool, isSpoiler bool, id 
 
 	case msg.Video != nil:
 		if msg.Video.FileSize > Max_Attachment_Size {
-			return false, false, fileID
+			break
 		}
 		fileID = msg.Video.FileID
 
 	case msg.Audio != nil:
 		if msg.Audio.FileSize > Max_Attachment_Size {
-			return false, false, fileID
+			break
 		}
 		fileID = msg.Audio.FileID
 
 	case msg.Sticker != nil:
 		if int64(msg.Sticker.FileSize) > Max_Attachment_Size {
-			return false, false, fileID
+			break
 		}
 		fileID = msg.Sticker.FileID
 
 	case msg.Voice != nil:
 		if msg.Voice.FileSize > Max_Attachment_Size {
-			return false, false, fileID
+			break
 		}
 		fileID = msg.Voice.FileID
 
 	case msg.VideoNote != nil:
 		if int64(msg.VideoNote.FileSize) > Max_Attachment_Size {
-			return false, false, fileID
+			break
 		}
 		fileID = msg.VideoNote.FileID
 
 	case msg.Animation != nil:
 		if msg.Animation.FileSize > Max_Attachment_Size {
-			return false, false, fileID
+			break
 		}
 		fileID = msg.Animation.FileID
 	}
