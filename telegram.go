@@ -8,6 +8,7 @@ import (
 	"github.com/go-telegram/bot/models"
 	"log"
 	"net/http"
+	"path"
 	"slices"
 	"strings"
 )
@@ -295,11 +296,11 @@ func sebarkan_attachment(ctx context.Context, b *bot.Bot, update *models.Update,
 		return
 	}
 
-	u := strings.Split(f.FilePath, "/")
+	filename := path.Base(f.FilePath)
 
 	// create form
 	defer resp.Body.Close()
-	mp, formBody := createForm(u[len(u)-1], resp.Body)
+	mp, formBody := createForm(filename, resp.Body)
 
 	defer formBody.Close()
 
