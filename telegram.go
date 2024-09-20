@@ -209,7 +209,7 @@ func cuit(ctx context.Context, b *bot.Bot, update *models.Update) {
 			return
 		} else if hasAttachment {
 			fullname := getFullName(msg.From)
-			text := fmt.Sprintf("~ %s", fullname)
+			text := fmt.Sprintf("- %s", fullname)
 			if len(msg.Caption) > 0 {
 				text = fmt.Sprintf("\"%s\"\n\n", msg.Caption) + text
 			}
@@ -229,7 +229,7 @@ func cuit(ctx context.Context, b *bot.Bot, update *models.Update) {
 	}
 
 	fullname := getFullName(msg.From)
-	text := fmt.Sprintf("\"%s\"\n\n~ %s", cuit, fullname)
+	text := fmt.Sprintf("\"%s\"\n\n- %s", cuit, fullname)
 
 	if tooLong(ctx, b, update, text) {
 		return
