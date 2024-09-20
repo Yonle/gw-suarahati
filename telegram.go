@@ -165,7 +165,7 @@ func getFullName(user *models.User) string {
 		username = "<no-username>"
 	}
 
-	return fmt.Sprintf("%s%s\nhttps://t.me/%s", user.FirstName, lastname, username)
+	return fmt.Sprintf("%s%s (t.me/%s)", user.FirstName, lastname, username)
 }
 
 func tooLong(ctx context.Context, b *bot.Bot, update *models.Update, text string) bool {
@@ -209,9 +209,9 @@ func cuit(ctx context.Context, b *bot.Bot, update *models.Update) {
 			return
 		} else if hasAttachment {
 			fullname := getFullName(msg.From)
-			text := fmt.Sprintf("%s", fullname)
+			text := fmt.Sprintf("~ %s", fullname)
 			if len(msg.Caption) > 0 {
-				text = fmt.Sprintf("%s\n\n---\n", msg.Caption) + text
+				text = fmt.Sprintf("\"%s\"\n\n", msg.Caption) + text
 			}
 
 			if tooLong(ctx, b, update, text) {
@@ -229,7 +229,7 @@ func cuit(ctx context.Context, b *bot.Bot, update *models.Update) {
 	}
 
 	fullname := getFullName(msg.From)
-	text := fmt.Sprintf("%s\n\n---\n%s", cuit, fullname)
+	text := fmt.Sprintf("\"%s\"\n\n~ %s", cuit, fullname)
 
 	if tooLong(ctx, b, update, text) {
 		return
