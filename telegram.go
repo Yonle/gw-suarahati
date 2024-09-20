@@ -261,7 +261,7 @@ func sendResult(ctx context.Context, b *bot.Bot, update *models.Update, resp *ht
 		return
 	}
 
-	sendMessage(ctx, b, update.Message.Chat.ID,
+	sendMessage_Markdown(ctx, b, update.Message.Chat.ID,
 		fmt.Sprintf("[Tersebar](%s).",
 			bot.EscapeMarkdown(url),
 		),
