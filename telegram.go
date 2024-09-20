@@ -64,7 +64,7 @@ func sendMessage(ctx context.Context, b *bot.Bot, chatID int64, text string) (*m
 	return b.SendMessage(ctx, params)
 }
 
-func sendMessage_MarkDown(ctx context.Context, b *bot.Bot, chatID int64, text string) (*models.Message, error) {
+func sendMessage_Markdown(ctx context.Context, b *bot.Bot, chatID int64, text string) (*models.Message, error) {
 	params := &bot.SendMessageParams{
 		ChatID:    chatID,
 		Text:      text,
@@ -224,7 +224,7 @@ func cuit(ctx context.Context, b *bot.Bot, update *models.Update) {
 	}
 
 	if !adacuitan {
-		sendMessage_MarkDown(ctx, b, msg.Chat.ID, helptext)
+		sendMessage_Markdown(ctx, b, msg.Chat.ID, helptext)
 		return
 	}
 
@@ -248,10 +248,10 @@ func sebarkan_text(ctx context.Context, b *bot.Bot, update *models.Update, text 
 		return
 	}
 
-	sendResult(ctx, b, update, resp, text)
+	sendResult(ctx, b, update, resp)
 }
 
-func sendResult(ctx context.Context, b *bot.Bot, update *models.Update, resp *http.Response, text string) {
+func sendResult(ctx context.Context, b *bot.Bot, update *models.Update, resp *http.Response) {
 	url, err := getPostURL(resp)
 	if err != nil {
 		log.Println(err)
@@ -262,7 +262,9 @@ func sendResult(ctx context.Context, b *bot.Bot, update *models.Update, resp *ht
 	}
 
 	sendMessage(ctx, b, update.Message.Chat.ID,
-		fmt.Sprintf("%s\n\n%s", text, url),
+		fmt.Sprintf("[Tersebar](%s).",
+			bot.EscapeMarkdown(url),
+		),
 	)
 }
 
@@ -353,5 +355,5 @@ func sebarkan_attachment(ctx context.Context, b *bot.Bot, update *models.Update,
 		return
 	}
 
-	sendResult(ctx, b, update, toot_resp, text)
+	sendResult(ctx, b, update, toot_resp)
 }
