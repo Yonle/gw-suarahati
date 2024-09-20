@@ -262,7 +262,7 @@ func sendResult(ctx context.Context, b *bot.Bot, update *models.Update, resp *ht
 	}
 
 	sendMessage_Markdown(ctx, b, update.Message.Chat.ID,
-		fmt.Sprintf("Berhasil [disebar](%s).", url),
+		fmt.Sprintf("Berhasil [dicuit](%s).", url),
 	)
 }
 
