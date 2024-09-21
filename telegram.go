@@ -179,8 +179,6 @@ func cuit(ctx context.Context, b *bot.Bot, update *models.Update) {
 		return
 	}
 
-	sendTyping(ctx, b, msg.Chat.ID)
-
 	_, cuit, adacuitan := strings.Cut(msg.Text, " ")
 
 	if msg.ReplyToMessage != nil && !adacuitan {
@@ -235,6 +233,8 @@ func cuit(ctx context.Context, b *bot.Bot, update *models.Update) {
 }
 
 func sebarkan_text(ctx context.Context, b *bot.Bot, update *models.Update, text string) {
+	sendTyping(ctx, b, update.Message.Chat.ID)
+
 	resp, err := keluarkan(text, nil, nil)
 	if err != nil {
 		log.Println(err)
@@ -268,6 +268,8 @@ func lepaskan() { <-fileUpload_chan }
 func sebarkan_attachment(ctx context.Context, b *bot.Bot, update *models.Update, text string, fileID string, spoiler bool) {
 	sayadulu()
 	defer lepaskan()
+
+	sendTyping(ctx, b, update.Message.Chat.ID)
 
 	// get url
 	f, err := b.GetFile(ctx, &bot.GetFileParams{
