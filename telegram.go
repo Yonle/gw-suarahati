@@ -183,7 +183,7 @@ func cuit(ctx context.Context, b *bot.Bot, update *models.Update) {
 
 	_, cuit, adacuitan := strings.Cut(msg.Text, " ")
 
-	if msg.ReplyToMessage != nil {
+	if msg.ReplyToMessage != nil && !adacuitan {
 		msg = msg.ReplyToMessage
 		cuit = msg.Text
 		adacuitan = len(msg.Text) > 0
