@@ -97,22 +97,9 @@ func getAttachment(msg *models.Message) (hasAttachment bool, isSpoiler bool, id 
 
 	switch true {
 	case len(msg.Photo) > 0:
-		var lastSize int
+		p := msg.Photo[len(msg.Photo)-1]
 
-		for _, p := range msg.Photo[1:] {
-			// if this one is too big, skip.
-			if int64(p.FileSize) > Max_Attachment_Size {
-				continue
-			}
-
-			// pick the biggest
-			if p.FileSize < lastSize {
-				continue
-			}
-
-			fileID = p.FileID
-			lastSize = p.FileSize
-		}
+		fileID = p.FileID
 
 	case msg.Video != nil:
 		if msg.Video.FileSize > Max_Attachment_Size {
