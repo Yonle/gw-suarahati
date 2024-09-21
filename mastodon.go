@@ -153,7 +153,7 @@ func masto_wait_media_ready(id string) error {
 		}
 
 		if resp.StatusCode >= 400 {
-			return errors.New(fmt.Sprintf("Status code: %d", resp.StatusCode))
+			return fmt.Errorf("Status code: %d", resp.StatusCode)
 		}
 
 		return nil
