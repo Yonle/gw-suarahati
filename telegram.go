@@ -150,7 +150,15 @@ func getAttachment(msg *models.Message) (hasAttachment bool, isSpoiler bool, id 
 	return len(fileID) > 0, msg.HasMediaSpoiler, fileID
 }
 
-func getFullName(user *models.User) string {
+func getFullName(msg *models.Message) string {
+	if msg.SenderChat != nil {
+		chat := msg.SenderChat
+		title := chat.Title
+		username := chat.Username
+		return fmt.Sprintf("%s (t.me/%s)", title, username)
+	}
+
+	user := msg.From
 	lastname := user.LastName
 	if len(lastname) > 0 {
 		lastname = " " + lastname
@@ -202,7 +210,7 @@ func cuit(ctx context.Context, b *bot.Bot, update *models.Update) {
 			sendMessage(ctx, b, msg.Chat.ID, "Jenis pesan tidak didukung")
 			return
 		} else if hasAttachment {
-			fullname := getFullName(msg.From)
+			fullname := getFullName(msg)
 			text := fmt.Sprintf("- %s", fullname)
 			if len(msg.Caption) > 0 {
 				text = fmt.Sprintf("\"%s\"\n\n", msg.Caption) + text
@@ -222,7 +230,7 @@ func cuit(ctx context.Context, b *bot.Bot, update *models.Update) {
 		return
 	}
 
-	fullname := getFullName(msg.From)
+	fullname := getFullName(msg)
 	text := fmt.Sprintf("\"%s\"\n\n- %s", cuit, fullname)
 
 	if tooLong(ctx, b, update, text) {
