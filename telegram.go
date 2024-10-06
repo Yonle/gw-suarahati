@@ -145,6 +145,12 @@ func getAttachment(msg *models.Message) (hasAttachment bool, isSpoiler bool, id 
 			break
 		}
 		fileID = msg.Animation.FileID
+
+	case msg.Document != nil:
+		if msg.Document.FileSize > Max_Attachment_Size {
+			break
+		}
+		fileID = msg.Document.FileID
 	}
 
 	return len(fileID) > 0, msg.HasMediaSpoiler, fileID
